@@ -16,6 +16,11 @@ import (
 type Client struct {
 	url        string // GraphQL server URL.
 	httpClient *http.Client
+
+	// Log is called with various debug information.
+	// To log to standard out, use:
+	//  client.Log = func(s string) { log.Println(s) }
+	Log func(s string)
 }
 
 // NewClient creates a GraphQL client targeting the specified GraphQL server URL.
@@ -27,7 +32,12 @@ func NewClient(url string, httpClient *http.Client) *Client {
 	return &Client{
 		url:        url,
 		httpClient: httpClient,
+		Log:        func(string) {},
 	}
+}
+
+func (c *Client) logf(format string, args ...interface{}) {
+	c.Log(fmt.Sprintf(format, args...))
 }
 
 // Query executes a single GraphQL query request,
@@ -65,9 +75,9 @@ func (c *Client) do(ctx context.Context, op operationType, v interface{}, variab
 	if err != nil {
 		return err
 	}
-	// DEBUG
-	println(">>>>>>>>>request body")
-	println(buf.String())
+	//DEBUG
+	c.logf(">>>>>>>>>request body")
+	c.logf(buf.String())
 
 	resp, err := ctxhttp.Post(ctx, c.httpClient, c.url, "application/json", &buf)
 	if err != nil {
@@ -84,8 +94,9 @@ func (c *Client) do(ctx context.Context, op operationType, v interface{}, variab
 	bodyString := string(bodyBytes)
 	//print raw response body for debugging purposes
 
-	println(">>>>>>>>>response body")
-	println(bodyString)
+	c.logf(">>>>>>>>>response body")
+	c.logf(bodyString)
+	c.logf("----------------------\n")
 
 	//reset the response body to the original unread state
 	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
