@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/shurcooL/go/ctxhttp"
@@ -64,6 +65,10 @@ func (c *Client) do(ctx context.Context, op operationType, v interface{}, variab
 	if err != nil {
 		return err
 	}
+	// DEBUG
+	println(">>>>>>>>>request body")
+	println(buf.String())
+
 	resp, err := ctxhttp.Post(ctx, c.httpClient, c.url, "application/json", &buf)
 	if err != nil {
 		return err
@@ -72,6 +77,19 @@ func (c *Client) do(ctx context.Context, op operationType, v interface{}, variab
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("unexpected status: %v", resp.Status)
 	}
+
+	//DEBUG:
+	//read the response body to a variable
+	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+	bodyString := string(bodyBytes)
+	//print raw response body for debugging purposes
+
+	println(">>>>>>>>>response body")
+	println(bodyString)
+
+	//reset the response body to the original unread state
+	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+
 	var out struct {
 		Data   json.RawMessage
 		Errors errors
@@ -95,8 +113,13 @@ func (c *Client) do(ctx context.Context, op operationType, v interface{}, variab
 // If returned via error interface, the slice is expected to contain at least 1 element.
 //
 // Specification: https://facebook.github.io/graphql/#sec-Errors.
+
+// TODO: need to tune
 type errors []struct {
-	Message   string
+	Message struct {
+		Code    int
+		Message string
+	}
 	Locations []struct {
 		Line   int
 		Column int
@@ -105,7 +128,7 @@ type errors []struct {
 
 // Error implements error interface.
 func (e errors) Error() string {
-	return e[0].Message
+	return e[0].Message.Message
 }
 
 type operationType uint8
