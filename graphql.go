@@ -75,7 +75,7 @@ func (c *Client) do(ctx context.Context, op operationType, v interface{}, variab
 	if err != nil {
 		return err
 	}
-	//DEBUG
+	//DEBUG:
 	c.logf(">>>>>>>>>request body")
 	c.logf(buf.String())
 
@@ -125,7 +125,7 @@ func (c *Client) do(ctx context.Context, op operationType, v interface{}, variab
 //
 // Specification: https://facebook.github.io/graphql/#sec-Errors.
 
-// TODO: need to tune
+// TODO: stay tuned
 type errors []struct {
 	Message struct {
 		Code    int
