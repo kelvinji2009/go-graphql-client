@@ -76,7 +76,7 @@ func (c *Client) do(ctx context.Context, op operationType, v interface{}, variab
 		return err
 	}
 	//DEBUG:
-	c.logf(">>>>>>>>>request body")
+	c.logf(`{"debug>>>>": "request body"}`)
 	c.logf(buf.String())
 
 	resp, err := ctxhttp.Post(ctx, c.httpClient, c.url, "application/json", &buf)
@@ -94,7 +94,7 @@ func (c *Client) do(ctx context.Context, op operationType, v interface{}, variab
 	bodyString := string(bodyBytes)
 	//print raw response body for debugging purposes
 
-	c.logf(">>>>>>>>>response body")
+	c.logf(`{"debug>>>>": "response body"}`)
 	c.logf(bodyString)
 	c.logf("----------------------\n")
 
