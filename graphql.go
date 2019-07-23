@@ -9,7 +9,7 @@ import (
 	"net/http"
 
 	"github.com/kelvinji2009/graphql/internal/jsonutil"
-	"github.com/shurcooL/go/ctxhttp"
+	"github.com/kelvinji2009/ctxhttp"
 )
 
 // Client is a GraphQL client.
